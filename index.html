@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Pink Stickman · Sweet Kiss</title>
+    <title>بوسه شیرین · آدمک صورتی</title>
     <style>
         body {
             margin: 0;
@@ -11,39 +11,25 @@
             background: #0d0015;
             font-family: Arial, Helvetica, sans-serif;
         }
-        /* No text, no frame — just pure 3D canvas */
         canvas {
             display: block;
         }
-        /* Tiny loading hint (will disappear) */
         #info {
             position: absolute;
             bottom: 20px;
             left: 0;
             width: 100%;
             text-align: center;
-            color: rgba(255, 200, 255, 0.3);
-            font-size: 14px;
+            color: rgba(255, 200, 255, 0.2);
+            font-size: 12px;
             pointer-events: none;
-            font-weight: 300;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px #ff69b4;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 0.8;
-            }
         }
     </style>
 </head>
 <body>
 
-    <div id="info">✦ loading dreamscape ✦</div>
+    <div id="info">✦ لمس کن تا قلب ببارد ✦</div>
 
     <script type="importmap">
         {
@@ -56,82 +42,77 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- 1. Scene Setup ---
+        // --- صحنه و دوربین (نمای گوشی، روبرو) ---
         const scene = new THREE.Scene();
-        // Vibrant dreamy background gradient (via canvas texture)
+
+        // پس‌زمینه رویایی
         const canvas = document.createElement('canvas');
         canvas.width = 512;
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
         const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 256);
-        gradient.addColorStop(0, '#ff99cc');
-        gradient.addColorStop(0.3, '#b266ff');
-        gradient.addColorStop(0.7, '#663399');
+        gradient.addColorStop(0, '#ffb3d9');
+        gradient.addColorStop(0.3, '#cc88ff');
+        gradient.addColorStop(0.7, '#7744aa');
         gradient.addColorStop(1, '#1a0033');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 512, 512);
-        const bgTexture = new THREE.CanvasTexture(canvas);
-        scene.background = bgTexture;
+        scene.background = new THREE.CanvasTexture(canvas);
 
-        // Soft fog for depth
-        scene.fog = new THREE.FogExp2(0x1a0033, 0.018);
+        scene.fog = new THREE.FogExp2(0x1a0033, 0.015);
 
-        // --- 2. Camera (Viewer POV) ---
-        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.2, 0);
-        camera.lookAt(0, 0.8, -5);
+        // دوربین: دقیقاً در ارتفاع گوشی (نه پایین، نه بالا)
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0.65, 0.1);
+        camera.lookAt(0, 0.7, -3);
 
-        // --- 3. Renderer ---
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 1.1;
         document.body.prepend(renderer.domElement);
         document.getElementById('info').style.display = 'none';
 
-        // --- 4. Lights ---
-        const ambient = new THREE.AmbientLight(0x443366, 0.6);
+        // --- نورپردازی نرم و رویایی ---
+        const ambient = new THREE.AmbientLight(0x554477, 0.6);
         scene.add(ambient);
 
-        const mainLight = new THREE.DirectionalLight(0xffddff, 1.8);
-        mainLight.position.set(5, 8, 6);
+        const mainLight = new THREE.DirectionalLight(0xffddff, 1.6);
+        mainLight.position.set(4, 6, 5);
         mainLight.castShadow = true;
         scene.add(mainLight);
 
-        const rimLight = new THREE.DirectionalLight(0xff66aa, 1.2);
-        rimLight.position.set(-4, 2, -8);
+        const rimLight = new THREE.DirectionalLight(0xff88bb, 1.2);
+        rimLight.position.set(-5, 1, -6);
         scene.add(rimLight);
 
-        const fillLight = new THREE.DirectionalLight(0x88ddff, 0.6);
-        fillLight.position.set(-3, 1, 4);
+        const fillLight = new THREE.DirectionalLight(0x88ddff, 0.5);
+        fillLight.position.set(-2, 1, 5);
         scene.add(fillLight);
 
-        // Glowing backlight that follows the stickman
-        const glowLight = new THREE.PointLight(0xff44aa, 1.5, 15);
-        glowLight.position.set(0, 1, -2);
+        const glowLight = new THREE.PointLight(0xff44aa, 1.2, 12);
+        glowLight.position.set(0, 0.9, -1);
         scene.add(glowLight);
 
-        // --- 5. Heart Texture (Canvas) ---
+        // --- بافت قلب ---
         function createHeartTexture(color = '#ff4d7a', glow = false) {
             const c = document.createElement('canvas');
             c.width = 128;
             c.height = 128;
             const cx = c.getContext('2d');
             cx.clearRect(0, 0, 128, 128);
-
             if (glow) {
                 const grd = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
-                grd.addColorStop(0, 'rgba(255,100,150,0.8)');
-                grd.addColorStop(1, 'rgba(255,100,150,0)');
+                grd.addColorStop(0, 'rgba(255,80,150,0.7)');
+                grd.addColorStop(1, 'rgba(255,80,150,0)');
                 cx.fillStyle = grd;
                 cx.fillRect(0, 0, 128, 128);
             }
-
             cx.fillStyle = color;
-            cx.shadowColor = 'rgba(255,100,200,0.8)';
+            cx.shadowColor = 'rgba(255,80,200,0.8)';
             cx.shadowBlur = 20;
             cx.beginPath();
             cx.moveTo(64, 88);
@@ -145,140 +126,135 @@
         const heartTex = createHeartTexture('#ff4d7a');
         const heartGlowTex = createHeartTexture('#ff2a5e', true);
 
-        // --- 6. Build the Cute Pink-Haired Stickman ---
+        // --- ساخت آدمک (رنگ کرمی، موهای مشکی) ---
         function createStickman() {
             const root = new THREE.Group();
 
-            // Materials
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffccdd, roughness: 0.25, metalness: 0.05 });
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffaacc, roughness: 0.3, metalness: 0.1 });
+            // رنگ‌های جدید: کرمی و مشکی
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5d6b8, roughness: 0.3, metalness: 0.05 });
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf5d6b8, roughness: 0.3 });
             const hairMat = new THREE.MeshStandardMaterial({
-                color: 0xff69b4,
-                roughness: 0.6,
-                emissive: 0xff1493,
-                emissiveIntensity: 0.15
+                color: 0x222222,
+                roughness: 0.7,
+                emissive: 0x111111,
+                emissiveIntensity: 0.1
             });
-            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x220033, emissive: 0x440066, emissiveIntensity: 0.2 });
-            const blushMat = new THREE.MeshStandardMaterial({ color: 0xff4d6d, transparent: true, opacity: 0.5 });
-            const shoeMat = new THREE.MeshStandardMaterial({ color: 0xff3388, emissive: 0xff0055, emissiveIntensity: 0.1 });
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x222222, emissiveIntensity: 0.1 });
+            const blushMat = new THREE.MeshStandardMaterial({ color: 0xff4d6d, transparent: true, opacity: 0.4 });
+            const shoeMat = new THREE.MeshStandardMaterial({ color: 0x333333, emissive: 0x222222, emissiveIntensity: 0.1 });
 
-            // --- Torso ---
-            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, 0.5, 8), bodyMat);
+            // بالاتنه
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.5, 8), bodyMat);
             torso.position.y = 0.25;
             torso.castShadow = true;
             root.add(torso);
 
-            // --- Head ---
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 20), skinMat);
-            head.position.y = 0.62;
+            // سر
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 24), skinMat);
+            head.position.y = 0.6;
             head.castShadow = true;
             root.add(head);
 
-            // --- Hair (Fluffy pink) ---
-            const hairBase = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), hairMat);
-            hairBase.position.set(0, 0.72, 0.02);
-            hairBase.scale.set(1, 0.45, 0.9);
+            // موهای مشکی (پف دار)
+            const hairBase = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), hairMat);
+            hairBase.position.set(0, 0.7, 0.02);
+            hairBase.scale.set(1, 0.4, 0.9);
             root.add(hairBase);
 
-            // Hair top (cone / ponytail)
-            const hairTop = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.25, 10), hairMat);
-            hairTop.position.set(0, 0.82, 0.02);
+            const hairTop = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.25, 10), hairMat);
+            hairTop.position.set(0, 0.8, 0.02);
             hairTop.rotation.x = 0.1;
             root.add(hairTop);
 
-            // Side hair buns
-            const bunMat = new THREE.MeshStandardMaterial({ color: 0xff88bb, roughness: 0.5, emissive: 0xff1493,
-                emissiveIntensity: 0.1 });
-            const bun1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), bunMat);
-            bun1.position.set(-0.2, 0.7, 0.0);
+            // دو تا غنچه موی مشکی
+            const bunMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6 });
+            const bun1 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), bunMat);
+            bun1.position.set(-0.18, 0.68, 0.0);
             root.add(bun1);
-            const bun2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), bunMat);
-            bun2.position.set(0.2, 0.7, 0.0);
+            const bun2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), bunMat);
+            bun2.position.set(0.18, 0.68, 0.0);
             root.add(bun2);
 
-            // --- Eyes (kawaii) ---
-            const eyeGeo = new THREE.SphereGeometry(0.045, 8, 8);
+            // چشم‌ها
+            const eyeGeo = new THREE.SphereGeometry(0.04, 10, 10);
             const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.08, 0.65, 0.19);
+            eyeL.position.set(-0.07, 0.63, 0.18);
             root.add(eyeL);
             const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.08, 0.65, 0.19);
+            eyeR.position.set(0.07, 0.63, 0.18);
             root.add(eyeR);
 
-            // Eye highlights
-            const highMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.5 });
-            const highGeo = new THREE.SphereGeometry(0.015, 6, 6);
+            // هایلایت چشم
+            const highMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.6 });
+            const highGeo = new THREE.SphereGeometry(0.012, 6, 6);
             const hL = new THREE.Mesh(highGeo, highMat);
-            hL.position.set(-0.065, 0.665, 0.22);
+            hL.position.set(-0.055, 0.645, 0.21);
             root.add(hL);
             const hR = new THREE.Mesh(highGeo, highMat);
-            hR.position.set(0.095, 0.665, 0.22);
+            hR.position.set(0.085, 0.645, 0.21);
             root.add(hR);
 
-            // --- Blush ---
-            const blush = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), blushMat);
-            blush.position.set(-0.17, 0.58, 0.15);
+            // رژگونه
+            const blush = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), blushMat);
+            blush.position.set(-0.16, 0.56, 0.14);
             root.add(blush);
-            const blush2 = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), blushMat);
-            blush2.position.set(0.17, 0.58, 0.15);
+            const blush2 = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), blushMat);
+            blush2.position.set(0.16, 0.56, 0.14);
             root.add(blush2);
 
-            // --- Legs ---
-            const legGeo = new THREE.CylinderGeometry(0.055, 0.065, 0.4, 6);
-            const legMat = new THREE.MeshStandardMaterial({ color: 0xffaacc, roughness: 0.3 });
+            // پاها
+            const legGeo = new THREE.CylinderGeometry(0.05, 0.06, 0.38, 6);
+            const legMat = new THREE.MeshStandardMaterial({ color: 0xf5d6b8, roughness: 0.3 });
 
             const leftLegPivot = new THREE.Group();
-            leftLegPivot.position.set(-0.1, 0.0, 0);
+            leftLegPivot.position.set(-0.09, 0.0, 0);
             const leftLeg = new THREE.Mesh(legGeo, legMat);
-            leftLeg.position.y = -0.2;
+            leftLeg.position.y = -0.19;
             leftLeg.castShadow = true;
             leftLegPivot.add(leftLeg);
-            // Shoe
-            const shoe = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), shoeMat);
-            shoe.position.set(0, -0.4, 0.04);
+            const shoe = new THREE.Mesh(new THREE.SphereGeometry(0.065, 6, 6), shoeMat);
+            shoe.position.set(0, -0.38, 0.04);
             leftLegPivot.add(shoe);
             root.add(leftLegPivot);
 
             const rightLegPivot = new THREE.Group();
-            rightLegPivot.position.set(0.1, 0.0, 0);
+            rightLegPivot.position.set(0.09, 0.0, 0);
             const rightLeg = new THREE.Mesh(legGeo, legMat);
-            rightLeg.position.y = -0.2;
+            rightLeg.position.y = -0.19;
             rightLeg.castShadow = true;
             rightLegPivot.add(rightLeg);
-            const shoeR = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), shoeMat);
-            shoeR.position.set(0, -0.4, 0.04);
+            const shoeR = new THREE.Mesh(new THREE.SphereGeometry(0.065, 6, 6), shoeMat);
+            shoeR.position.set(0, -0.38, 0.04);
             rightLegPivot.add(shoeR);
             root.add(rightLegPivot);
 
-            // --- Arms ---
-            const armGeo = new THREE.CylinderGeometry(0.04, 0.045, 0.4, 6);
-            const armMat = new THREE.MeshStandardMaterial({ color: 0xffbbdd, roughness: 0.3 });
+            // دست‌ها
+            const armGeo = new THREE.CylinderGeometry(0.035, 0.04, 0.38, 6);
+            const armMat = new THREE.MeshStandardMaterial({ color: 0xf5d6b8, roughness: 0.3 });
 
             const leftArmPivot = new THREE.Group();
-            leftArmPivot.position.set(-0.2, 0.45, 0);
+            leftArmPivot.position.set(-0.18, 0.42, 0);
             const leftArm = new THREE.Mesh(armGeo, armMat);
-            leftArm.position.y = -0.2;
+            leftArm.position.y = -0.19;
             leftArm.castShadow = true;
             leftArmPivot.add(leftArm);
-            // Hand (tiny sphere)
-            const handMat = new THREE.MeshStandardMaterial({ color: 0xffaacc });
-            const hand = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6), handMat);
-            hand.position.set(0, -0.4, 0);
+            const hand = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), armMat);
+            hand.position.set(0, -0.38, 0);
             leftArmPivot.add(hand);
             root.add(leftArmPivot);
 
             const rightArmPivot = new THREE.Group();
-            rightArmPivot.position.set(0.2, 0.45, 0);
+            rightArmPivot.position.set(0.18, 0.42, 0);
             const rightArm = new THREE.Mesh(armGeo, armMat);
-            rightArm.position.y = -0.2;
+            rightArm.position.y = -0.19;
             rightArm.castShadow = true;
             rightArmPivot.add(rightArm);
-            const handR = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6), handMat);
-            handR.position.set(0, -0.4, 0);
+            const handR = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), armMat);
+            handR.position.set(0, -0.38, 0);
             rightArmPivot.add(handR);
             root.add(rightArmPivot);
 
-            // Store pivots for animation
+            // ذخیره برای انیمیشن
             root.userData = {
                 leftLegPivot,
                 rightLegPivot,
@@ -289,29 +265,30 @@
                 leftArm,
                 rightArm,
                 leftLeg,
-                rightLeg
+                rightLeg,
+                eyeL,
+                eyeR
             };
 
             return root;
         }
 
         const stickman = createStickman();
-        // Start far away, scaled by perspective naturally via Z
-        stickman.position.set(0, 0.0, -22);
+        stickman.position.set(0, 0.0, -20);
         scene.add(stickman);
 
-        // A small glowing aura around the stickman
+        // هاله نور
         const auraMat = new THREE.SpriteMaterial({
             map: heartGlowTex,
             blending: THREE.AdditiveBlending,
             transparent: true,
-            opacity: 0.3
+            opacity: 0.25
         });
         const aura = new THREE.Sprite(auraMat);
-        aura.scale.set(3, 3, 1);
+        aura.scale.set(2.5, 2.5, 1);
         stickman.add(aura);
 
-        // --- 7. Floating Hearts System ---
+        // --- سیستم قلب‌ها ---
         const hearts = [];
         const heartSpriteMat = new THREE.SpriteMaterial({
             map: heartTex,
@@ -326,11 +303,11 @@
             sprite.position.set(x, y, z);
             sprite.scale.set(scale, scale, 1);
             sprite.userData = {
-                vx: (Math.random() - 0.5) * 0.8,
-                vy: Math.random() * 0.6 + 0.2,
-                vz: -Math.random() * 0.5 - 0.3,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: Math.random() * 0.5 + 0.2,
+                vz: -Math.random() * 0.4 - 0.2,
                 life: 1.0,
-                decay: 0.002 + Math.random() * 0.003,
+                decay: 0.0015 + Math.random() * 0.002,
                 rotSpeed: (Math.random() - 0.5) * 0.02
             };
             scene.add(sprite);
@@ -338,95 +315,87 @@
             return sprite;
         }
 
-        // Pre-spawn some hearts
-        for (let i = 0; i < 40; i++) {
-            const z = -Math.random() * 30 - 2;
-            const x = (Math.random() - 0.5) * 8;
-            const y = Math.random() * 4 + 0.5;
-            const s = 0.2 + Math.random() * 0.6;
-            spawnHeart(x, y, z, s);
+        for (let i = 0; i < 35; i++) {
+            const z = -Math.random() * 28 - 2;
+            const x = (Math.random() - 0.5) * 7;
+            const y = Math.random() * 4 + 0.3;
+            spawnHeart(x, y, z, 0.2 + Math.random() * 0.5);
         }
 
-        // --- 8. Sparkles / Glow particles ---
+        // --- ذرات براق ---
         const sparkleGeo = new THREE.BufferGeometry();
-        const sparkleCount = 200;
+        const sparkleCount = 150;
         const positions = new Float32Array(sparkleCount * 3);
         for (let i = 0; i < sparkleCount * 3; i++) {
-            positions[i] = (Math.random() - 0.5) * 40;
-            if (i % 3 === 1) positions[i] = Math.random() * 6 + 0.5; // y
-            if (i % 3 === 2) positions[i] = -Math.random() * 30 - 2; // z
+            positions[i] = (Math.random() - 0.5) * 35;
+            if (i % 3 === 1) positions[i] = Math.random() * 5 + 0.5;
+            if (i % 3 === 2) positions[i] = -Math.random() * 28 - 2;
         }
         sparkleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         const sparkleMat = new THREE.PointsMaterial({
-            color: 0xff88cc,
-            size: 0.08,
+            color: 0xffaacc,
+            size: 0.06,
             transparent: true,
             blending: THREE.AdditiveBlending,
-            opacity: 0.6,
+            opacity: 0.5,
             sizeAttenuation: true
         });
         const sparkles = new THREE.Points(sparkleGeo, sparkleMat);
         scene.add(sparkles);
 
-        // --- 9. Animation State ---
+        // --- وضعیت انیمیشن ---
         const clock = new THREE.Clock();
-        let state = 'walking'; // 'walking' | 'kissing' | 'reset'
+        let state = 'walking';
         let kissTimer = 0;
-        const KISS_TRIGGER_Z = -1.2;
-        const RESET_Z = -22;
+        const KISS_TRIGGER_Z = -1.4;
+        const RESET_Z = -20;
 
-        // Kiss effects
         let kissHeart = null;
         let kissFlash = null;
+        let cameraTargetZ = 0.1; // برای حرکت دوربین در بوسه
 
         function createKissEffect() {
-            // Big heart that flies to camera
             const bigHeart = new THREE.Sprite(new THREE.SpriteMaterial({
                 map: heartTex,
                 transparent: true,
                 blending: THREE.AdditiveBlending,
-                depthWrite: false
+                depthWrite: false,
+                opacity: 1
             }));
-            bigHeart.scale.set(0.8, 0.8, 1);
-            bigHeart.position.copy(stickman.position);
-            bigHeart.position.y += 0.8;
-            bigHeart.position.z += 0.5;
+            bigHeart.scale.set(1.2, 1.2, 1);
+            bigHeart.position.set(0, 0.7, 0.5);
             scene.add(bigHeart);
 
-            // Flash ring
-            const ringMat = new THREE.SpriteMaterial({
+            const ring = new THREE.Sprite(new THREE.SpriteMaterial({
                 map: heartGlowTex,
                 transparent: true,
                 blending: THREE.AdditiveBlending,
-                opacity: 0.8,
+                opacity: 0.9,
                 color: 0xff3388
-            });
-            const ring = new THREE.Sprite(ringMat);
-            ring.scale.set(2.5, 2.5, 1);
-            ring.position.copy(stickman.position);
-            ring.position.z += 0.8;
+            }));
+            ring.scale.set(3, 3, 1);
+            ring.position.set(0, 0.7, 0.3);
             scene.add(ring);
 
             return { bigHeart, ring };
         }
 
-        // --- 10. Main Loop ---
+        // --- حلقه اصلی ---
         function animate() {
-            const delta = clock.getDelta();
+            const delta = Math.min(clock.getDelta(), 0.05);
             const time = clock.getElapsedTime();
 
-            // Update stickman position
-            let speed = 1.8;
             let z = stickman.position.z;
 
+            // ========== حالت راه رفتن ==========
             if (state === 'walking') {
-                z += delta * speed;
+                z += delta * 1.9;
                 stickman.position.z = z;
 
-                // Walk cycle animation
-                const walkSpeed = 5.5;
-                const swing = Math.sin(time * walkSpeed) * 0.5;
-                const swing2 = Math.sin(time * walkSpeed + Math.PI) * 0.5;
+                // حرکت نرم‌تر و طبیعی‌تر با دامنه بیشتر و فرکانس مناسب
+                const walkSpeed = 4.2;
+                const swing = Math.sin(time * walkSpeed) * 0.7;
+                const swing2 = Math.sin(time * walkSpeed + Math.PI) * 0.7;
 
                 const leftLeg = stickman.userData.leftLegPivot;
                 const rightLeg = stickman.userData.rightLegPivot;
@@ -434,117 +403,139 @@
                 const rightArm = stickman.userData.rightArmPivot;
                 const torso = stickman.userData.torso;
 
-                leftLeg.rotation.x = swing2 * 0.6;
-                rightLeg.rotation.x = swing * 0.6;
-                leftArm.rotation.x = swing * 0.7;
-                rightArm.rotation.x = swing2 * 0.7;
+                leftLeg.rotation.x = swing2 * 0.65;
+                rightLeg.rotation.x = swing * 0.65;
+                leftArm.rotation.x = swing * 0.75;
+                rightArm.rotation.x = swing2 * 0.75;
 
-                // Add natural sway (Z rotation of arms)
-                leftArm.rotation.z = Math.sin(time * walkSpeed) * 0.1;
-                rightArm.rotation.z = Math.sin(time * walkSpeed + Math.PI) * 0.1;
+                // چرخش مچ و آرنج برای طبیعی‌تر شدن
+                leftArm.rotation.z = Math.sin(time * walkSpeed) * 0.12;
+                rightArm.rotation.z = Math.sin(time * walkSpeed + Math.PI) * 0.12;
 
-                // Body bob
-                torso.position.y = 0.25 + Math.sin(time * walkSpeed * 2) * 0.02;
+                // نرم‌تر شدن بالا و پایین تنه
+                torso.position.y = 0.25 + Math.sin(time * walkSpeed * 2) * 0.025;
 
-                // Slight whole-body sway
-                stickman.rotation.z = Math.sin(time * walkSpeed * 0.5) * 0.02;
+                // چرخش ملایم کل بدن
+                stickman.rotation.z = Math.sin(time * walkSpeed * 0.5) * 0.025;
 
-                // Glow light follows
+                // نور دنبال‌کننده
                 glowLight.position.set(
-                    Math.sin(time * 0.5) * 0.3,
-                    0.8 + Math.sin(time) * 0.1,
-                    z + 0.5
+                    Math.sin(time * 0.4) * 0.2,
+                    0.7 + Math.sin(time * 0.7) * 0.1,
+                    z + 0.4
                 );
 
-                // Spawn hearts occasionally
-                if (Math.random() < 0.15) {
+                // تولید قلب در حین راه رفتن
+                if (Math.random() < 0.12) {
                     const hz = z + (Math.random() - 0.5) * 3;
-                    const hx = (Math.random() - 0.5) * 2;
-                    const hy = Math.random() * 1.5 + 0.5;
-                    const s = 0.2 + Math.random() * 0.5;
-                    spawnHeart(hx, hy, hz, s);
+                    const hx = (Math.random() - 0.5) * 2.5;
+                    const hy = Math.random() * 1.8 + 0.3;
+                    spawnHeart(hx, hy, hz, 0.2 + Math.random() * 0.5);
                 }
 
-                // Check if close enough to kiss
+                // شرط شروع بوسه
                 if (z >= KISS_TRIGGER_Z) {
                     state = 'kissing';
                     kissTimer = 0;
-                    // Trigger kiss effect
                     const eff = createKissEffect();
                     kissHeart = eff.bigHeart;
                     kissFlash = eff.ring;
 
-                    // Stop walking, lean in
+                    // توقف حرکت دست و پا
                     stickman.userData.leftLegPivot.rotation.x = 0;
                     stickman.userData.rightLegPivot.rotation.x = 0;
-                    stickman.userData.leftArmPivot.rotation.x = -0.2;
-                    stickman.userData.rightArmPivot.rotation.x = -0.2;
+                    stickman.userData.leftArmPivot.rotation.x = -0.1;
+                    stickman.userData.rightArmPivot.rotation.x = -0.1;
+                    cameraTargetZ = -0.7; // دوربین به جلو می‌آید
                 }
             }
 
+            // ========== حالت بوسه (کاملاً واضح و جلوی گوشی) ==========
             if (state === 'kissing') {
                 kissTimer += delta;
-                const duration = 1.8; // seconds
+                const duration = 2.2;
 
-                // Lean the whole stickman forward
-                const leanProgress = Math.min(kissTimer / 0.3, 1);
-                stickman.rotation.x = -leanProgress * 0.35;
+                // حرکت نرم دوربین به سمت جلو (جلوی گوشی)
+                camera.position.z += (cameraTargetZ - camera.position.z) * 0.06;
 
-                // Move head forward for the kiss
+                // سر و گردن به سمت دوربین خم می‌شوند (بوسه واضح)
                 const head = stickman.userData.head;
-                const headTargetZ = -0.25 * leanProgress;
-                head.position.z = headTargetZ;
+                const targetHeadZ = -0.55;
+                head.position.z += (targetHeadZ - head.position.z) * 0.1;
 
-                // Slight blush intensify
-                // Move the kiss heart towards camera
+                // کج شدن سر برای بوسه (چرخش به پایین و کمی پهلو)
+                const targetHeadRotX = -0.25;
+                head.rotation.x += (targetHeadRotX - head.rotation.x) * 0.08;
+                head.rotation.z += (0.08 - head.rotation.z) * 0.05;
+
+                // بسته شدن چشم‌ها (برای بوسه)
+                const eyeL = stickman.userData.eyeL;
+                const eyeR = stickman.userData.eyeR;
+                const targetEyeScale = 0.15;
+                eyeL.scale.y += (targetEyeScale - eyeL.scale.y) * 0.1;
+                eyeR.scale.y += (targetEyeScale - eyeR.scale.y) * 0.1;
+
+                // حرکت قلب بزرگ به سمت لنز
                 if (kissHeart) {
-                    const heartZ = stickman.position.z + 0.8 - kissTimer * 1.2;
+                    const heartZ = 0.5 - kissTimer * 0.9;
                     kissHeart.position.z = heartZ;
-                    const s = 0.8 + kissTimer * 0.6;
+                    const s = 1.2 + kissTimer * 0.8;
                     kissHeart.scale.set(s, s, 1);
-                    kissHeart.material.opacity = Math.max(0, 1 - kissTimer * 0.6);
+                    kissHeart.material.opacity = Math.max(0, 1 - kissTimer * 0.55);
 
-                    // Flash ring
                     if (kissFlash) {
-                        const fs = 2.5 + kissTimer * 3;
+                        const fs = 3 + kissTimer * 4;
                         kissFlash.scale.set(fs, fs, 1);
-                        kissFlash.material.opacity = Math.max(0, 0.8 - kissTimer * 0.5);
+                        kissFlash.material.opacity = Math.max(0, 0.9 - kissTimer * 0.6);
                     }
                 }
 
-                // Spawn explosion of hearts during kiss
-                if (kissTimer < 0.6 && Math.random() < 0.5) {
-                    for (let i = 0; i < 3; i++) {
-                        const hx = (Math.random() - 0.5) * 1.5;
-                        const hy = Math.random() * 1.5 + 0.5;
-                        const hz = stickman.position.z + 0.3 + Math.random() * 0.5;
-                        const s = 0.3 + Math.random() * 0.4;
-                        const heart = spawnHeart(hx, hy, hz, s);
-                        heart.userData.vx *= 2;
-                        heart.userData.vy *= 2;
-                        heart.userData.vz = -Math.random() * 1.5 - 0.5;
+                // انفجار قلب در حین بوسه
+                if (kissTimer < 0.8 && Math.random() < 0.4) {
+                    for (let i = 0; i < 2; i++) {
+                        const hx = (Math.random() - 0.5) * 1.8;
+                        const hy = Math.random() * 1.8 + 0.3;
+                        const hz = 0.2 + Math.random() * 0.3;
+                        const heart = spawnHeart(hx, hy, hz, 0.3 + Math.random() * 0.5);
+                        heart.userData.vx *= 2.5;
+                        heart.userData.vy *= 2.5;
+                        heart.userData.vz = -Math.random() * 2 - 0.5;
                     }
                 }
 
+                // بعد از اتمام بوسه، بازنشانی
                 if (kissTimer > duration) {
                     state = 'reset';
+                    // باز کردن چشم‌ها
+                    eyeL.scale.y = 1;
+                    eyeR.scale.y = 1;
                 }
             }
 
+            // ========== بازنشانی ==========
             if (state === 'reset') {
-                // Fade out stickman and reset
-                stickman.position.z += delta * 8;
-                if (stickman.position.z > 2) {
-                    // Reset everything
+                stickman.position.z += delta * 7;
+                // برگرداندن دوربین به حالت اولیه
+                camera.position.z += (0.1 - camera.position.z) * 0.02;
+
+                // برگرداندن سر به حالت عادی
+                const head = stickman.userData.head;
+                head.position.z += (0 - head.position.z) * 0.05;
+                head.rotation.x += (0 - head.rotation.x) * 0.05;
+                head.rotation.z += (0 - head.rotation.z) * 0.05;
+
+                if (stickman.position.z > 3) {
                     stickman.position.set(0, 0, RESET_Z);
                     stickman.rotation.x = 0;
                     stickman.rotation.z = 0;
-                    const head = stickman.userData.head;
-                    head.position.z = 0;
+                    stickman.userData.head.position.z = 0;
+                    stickman.userData.head.rotation.x = 0;
+                    stickman.userData.head.rotation.z = 0;
                     stickman.userData.torso.position.y = 0.25;
+                    camera.position.z = 0.1;
+                    cameraTargetZ = 0.1;
                     state = 'walking';
 
-                    // Clean up kiss objects
                     if (kissHeart) { scene.remove(kissHeart);
                         kissHeart = null; }
                     if (kissFlash) { scene.remove(kissFlash);
@@ -552,7 +543,7 @@
                 }
             }
 
-            // --- Update hearts (float, move, fade) ---
+            // ========== بروزرسانی قلب‌ها ==========
             for (let i = hearts.length - 1; i >= 0; i--) {
                 const h = hearts[i];
                 h.userData.life -= h.userData.decay * delta * 30;
@@ -561,15 +552,9 @@
                 h.position.z += h.userData.vz * delta;
                 h.rotation.z += h.userData.rotSpeed * delta * 30;
 
-                // Scale up as they get closer (depth effect)
                 const dist = Math.abs(h.position.z - camera.position.z);
-                const scale = Math.min(0.3 + dist * 0.02, 1.5);
-                // But keep original scale variation
-                const baseScale = h.scale.x;
-                // Actually, let's just let them grow based on distance
-                const newScale = 0.3 + (Math.abs(h.position.z) * 0.02);
+                const newScale = 0.25 + dist * 0.025;
                 h.scale.set(newScale, newScale, 1);
-
                 h.material.opacity = h.userData.life * 0.9;
 
                 if (h.userData.life <= 0 || h.position.z > 2) {
@@ -578,20 +563,20 @@
                 }
             }
 
-            // Keep heart count reasonable
+            // حفظ تعداد قلب‌ها
             if (hearts.length < 30 && state !== 'reset') {
-                const z = stickman.position.z + (Math.random() - 0.5) * 6;
+                const z = stickman.position.z + (Math.random() - 0.5) * 5;
                 const x = (Math.random() - 0.5) * 4;
-                const y = Math.random() * 3 + 0.5;
-                spawnHeart(x, y, z, 0.2 + Math.random() * 0.5);
+                const y = Math.random() * 3 + 0.3;
+                spawnHeart(x, y, z, 0.2 + Math.random() * 0.4);
             }
 
-            // Sparkles animation
-            sparkles.rotation.y += delta * 0.02;
-            sparkles.rotation.x = Math.sin(time * 0.01) * 0.1;
+            // چرخش ذرات براق
+            sparkles.rotation.y += delta * 0.015;
+            sparkles.rotation.x = Math.sin(time * 0.008) * 0.05;
 
-            // Camera slight breathing
-            camera.position.y = 1.2 + Math.sin(time * 0.2) * 0.03;
+            // نفس کشیدن دوربین
+            camera.position.y = 0.65 + Math.sin(time * 0.15) * 0.02;
 
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
@@ -599,24 +584,27 @@
 
         animate();
 
-        // --- 11. Resize Handler ---
+        // --- تغییر اندازه صفحه ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- 12. Click to spawn extra hearts (fun) ---
-        window.addEventListener('click', (e) => {
-            for (let i = 0; i < 10; i++) {
-                const x = (Math.random() - 0.5) * 4;
-                const y = Math.random() * 3 + 0.5;
+        // --- کلیک برای بارش قلب (حس تعامل) ---
+        window.addEventListener('click', () => {
+            for (let i = 0; i < 12; i++) {
+                const x = (Math.random() - 0.5) * 5;
+                const y = Math.random() * 3 + 0.3;
                 const z = stickman.position.z + (Math.random() - 0.5) * 4;
-                spawnHeart(x, y, z, 0.4 + Math.random() * 0.6);
+                const heart = spawnHeart(x, y, z, 0.3 + Math.random() * 0.6);
+                heart.userData.vx *= 1.8;
+                heart.userData.vy *= 1.8;
+                heart.userData.vz = -Math.random() * 1.5 - 0.5;
             }
         });
 
-        console.log('🌸 3D Pink Stickman is walking to you!');
+        console.log('🌸 آدمک کرمی با موهای مشکی در راه است!');
     </script>
 </body>
 </html>
