@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوسهٔ مخصوص تو ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #ff99cc, #cc66ff, #ff66b2);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* پس‌زمینه قلب */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 8s infinite;
+        }
+
+        .phone {
+            width: 380px;
+            height: 720px;
+            background: #0f0f1f;
+            border: 18px solid #1a1a2e;
+            border-radius: 55px;
+            position: relative;
+            box-shadow: 
+                0 0 80px rgba(255, 105, 180, 0.6),
+                0 0 160px rgba(255, 20, 147, 0.4),
+                inset 0 0 40px rgba(255,255,255,0.1);
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .phone::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #000;
+            border-radius: 25px;
+            z-index: 20;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a0033 0%, #330022 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character {
+            position: absolute;
+            bottom: -180px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.08);
+            font-size: 220px;
+            filter: drop-shadow(0 30px 40px rgba(255, 50, 150, 0.9));
+            transition: all 4.5s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 5;
+        }
+
+        .character.animate {
+            bottom: 90px;
+            transform: translateX(-50%) scale(1.25) perspective(900px) rotateX(12deg);
+        }
+
+        .kiss {
+            position: absolute;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            font-size: 110px;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 6;
+        }
+
+        .kiss.show {
+            transform: translateX(-50%) scale(1.4);
+            opacity: 1;
+        }
+
+        .message {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 26px;
+            font-weight: 900;
+            text-align: center;
+            text-shadow: 0 0 20px #ff1493;
+            z-index: 8;
+            animation: glow 2.5s infinite alternate;
+        }
+
+        .subtitle {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffb3d1;
+            font-size: 18px;
+            font-weight: 400;
+            text-shadow: 0 0 15px #ff69b4;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 15px #ff1493; }
+            to { text-shadow: 0 0 35px #ff69b4, 0 0 50px #ff1493; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 35px;
+            z-index: 7;
+            animation: floatHeart 3.5s linear forwards;
+            pointer-events: none;
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(0) scale(0.4) rotate(0deg);
+                opacity: 0;
+            }
+            30% { opacity: 1; }
+            100% {
+                transform: translateY(-420px) scale(1.1) rotate(25deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="screen" id="screen">
+            <div class="message" id="mainMessage">عشق من ❤️</div>
+            <div class="subtitle">دلم برات تنگ شده...</div>
+            
+            <!-- شخصیت گوگولی -->
+            <div class="character" id="char">🥰</div>
+            
+            <!-- بوسه -->
+            <div class="kiss" id="kiss">💋</div>
+        </div>
+    </div>
+
+    <script>
+        const character = document.getElementById('char');
+        const kiss = document.getElementById('kiss');
+        const screen = document.getElementById('screen');
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = Math.random() > 0.5 ? '❤️' : '💗';
+            heart.style.left = Math.random() * 85 + 8 + '%';
+            heart.style.bottom = '-20px';
+            heart.style.animationDuration = (2.8 + Math.random() * 2) + 's';
+            heart.style.opacity = Math.random() * 0.7 + 0.6;
+            screen.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+
+        // شروع انیمیشن
+        window.onload = () => {
+            setTimeout(() => {
+                character.classList.add('animate');
+                
+                setTimeout(() => {
+                    kiss.classList.add('show');
+                    
+                    // قلب‌های زیاد
+                    for (let i = 0; i < 18; i++) {
+                        setTimeout(() => createHeart(), i * 70);
+                    }
+                    
+                    // لرزش عاشقانه
+                    screen.style.transform = 'scale(1.04)';
+                    setTimeout(() => screen.style.transform = 'scale(1)', 280);
+                }, 2400);
+            }, 600);
+        };
+
+        // کلیک برای بوسه دوباره
+        character.addEventListener('click', () => {
+            kiss.style.transition = 'all 0.4s';
+            kiss.classList.remove('show');
+            
+            setTimeout(() => {
+                kiss.classList.add('show');
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => createHeart(), i * 60);
+                }
+            }, 150);
+        });
+
+        // قلب مداوم
+        setInterval(() => {
+            if (Math.random() > 0.4) createHeart();
+        }, 450);
+
+        // پیام شخصی‌سازی شده (می‌تونی تغییر بدی)
+        // document.getElementById('mainMessage').textContent = "اسمش رو اینجا بنویس ❤️";
+    </script>
+</body>
+</html>
